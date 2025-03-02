@@ -1,0 +1,24 @@
+### Obtener todos los edificios
+GET http://localhost:3000/api/buildings
+
+### Obtener un edificio
+GET http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e
+
+### Crear un edificio
+POST http://localhost:3000/api/buildings
+Content-Type: application/json
+
+{
+    "name": "D1"
+}
+
+### Actualizar un edificio
+PUT http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e
+Content-Type: application/json
+
+{
+    "name": "D2"
+}
+
+### Eliminar un edificio
+DELETE http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e
