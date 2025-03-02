@@ -8,4 +8,7 @@ router.post('/', buildingController.createBuilding);
 router.put('/:id', buildingController.updateBuilding);
 router.delete('/:id', buildingController.deleteBuilding);
 
+router.get('/:buildingId/spaces/count', buildingController.getSpaceCountInBuilding);
+router.get('/:buildingId/devices/count', buildingController.getDeviceCountInBuilding);
+
 module.exports = router;

@@ -1,0 +1,27 @@
+### Obtener todos los espacios de un edificio
+GET http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces
+Content-Type: application/json
+
+### Obtener un espacio específico dentro de un edificio
+GET http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces/67c4a6a081f5311ff229436f
+Content-Type: application/json
+
+### Crear un nuevo espacio en un edificio
+POST http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces
+Content-Type: application/json
+
+{
+  "name": "A1"
+}
+
+### Actualizar un espacio dentro de un edificio
+PUT http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces/67c4a6a081f5311ff229436f
+Content-Type: application/json
+
+{
+  "name": "A2"
+}
+
+### Eliminar un espacio dentro de un edificio
+DELETE http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces/67c4a7add6eeb615235f904e
+Content-Type: application/json

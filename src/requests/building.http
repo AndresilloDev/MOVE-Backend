@@ -22,3 +22,11 @@ Content-Type: application/json
 
 ### Eliminar un edificio
 DELETE http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e
+
+### Obtener la cantidad de espacios en un edificio
+GET http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces/count
+Content-Type: application/json
+
+### Obtener la cantidad total de dispositivos en todos los espacios de un edificio
+GET http://localhost:3000/api/buildings/65c3bb18836aea9d621e6d9f/devices/count
+Content-Type: application/json

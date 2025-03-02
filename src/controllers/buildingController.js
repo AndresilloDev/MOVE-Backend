@@ -1,4 +1,5 @@
 const Building = require("../models/Building");
+const Space = require("../models/Space");
 
 // Obtener todos los edificios
 exports.getAllBuildings = async (req, res) => {
@@ -63,5 +64,35 @@ exports.deleteBuilding = async (req, res) => {
         res.json({ message: 'Edificio eliminado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar el edificio' });
+    }
+};
+
+// Obtener la cantidad de espacios en un edificio
+exports.getSpaceCountInBuilding = async (req, res) => {
+    try {
+        const { buildingId } = req.params;
+
+        const spaceCount = await Space.countDocuments({ building: buildingId });
+
+        res.status(200).json({ buildingId, spaceCount });
+    } catch (error) {
+        res.status(500).json({ message: `Error al obtener la cantidad de espacios: ${error.message}` });
+    }
+};
+
+// Obtener la cantidad total de dispositivos en todos los espacios de un edificio
+exports.getDeviceCountInBuilding = async (req, res) => {
+    try {
+        const { buildingId } = req.params;
+
+        const spaces = await Space.find({ building: buildingId }).select('_id');
+
+        const spaceIds = spaces.map(space => space._id);
+
+        const deviceCount = await Device.countDocuments({ space: { $in: spaceIds } });
+
+        res.status(200).json({ buildingId, deviceCount });
+    } catch (error) {
+        res.status(500).json({ message: `Error al obtener la cantidad de dispositivos: ${error.message}` });
     }
 };
