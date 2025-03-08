@@ -1,10 +1,15 @@
+const mongoose = require('mongoose');
 const SensorData = require('../models/SensorData');
 
 const getDeviceSensorsValues = async (req, res) => {
     try {
         const { device } = req.params;
 
-        const sensors = await SensorData.find({ device });
+        if (!mongoose.Types.ObjectId.isValid(device)) {
+            return res.status(400).json({ message: 'Invalid device ID format' });
+        }
+
+        const sensors = await SensorData.find({ device: new mongoose.Types.ObjectId(device) });
 
         if (sensors.length === 0) {
             return res.status(404).json({ message: 'No sensors found for this device' });
@@ -38,7 +43,14 @@ const getAllSensorDataInRange = async (req, res) => {
             return res.status(400).json({ message: 'Invalid date format' });
         }
 
-        const sensorData = await SensorData.findOne({ device, sensorName });
+        if (!mongoose.Types.ObjectId.isValid(device)) {
+            return res.status(400).json({ message: 'Invalid device ID format' });
+        }
+
+        const sensorData = await SensorData.findOne({
+            device: new mongoose.Types.ObjectId(device),
+            sensorName
+        });
 
         if (!sensorData) {
             return res.status(404).json({ message: 'No sensor data found for this sensor' });

@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const sensorDataSchema = new mongoose.Schema({
-    device  : {
-        type: String,
-        required: [true, 'El ID del dispositivo es obligatorio'],
-        trim: true
+    device: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Device',
+        required: [true, 'El ID del dispositivo es obligatorio']
     },
     sensorName: {
         type: String,
