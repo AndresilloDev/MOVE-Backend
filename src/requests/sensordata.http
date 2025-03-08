@@ -1,7 +1,7 @@
-### Obtener los datos del sensor de un dispositivo específico
-GET http://localhost:3000/api/sensordata/:deviceId/sensor
+### Obtener los valores del último dato registrado por cada sensor de un dispositivo
+GET http://localhost:3000/api/devices/:device/sensors
 Content-Type: application/json
 
-### Obtener todos los datos del sensor dentro de un rango de fechas
-GET http://localhost:3000/api/sensordata/range?startDate=2025-03-01T00:00:00Z&endDate=2025-03-06T00:00:00Z
+### Obtener los datos de un sensor específico dentro de un rango de fechas
+GET http://localhost:3000/api/devices/:device/sensors/data?sensorName=temperatura&startDate=2025-03-01T00:00:00Z&endDate=2025-03-06T00:00:00Z
 Content-Type: application/json
