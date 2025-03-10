@@ -1,13 +1,30 @@
 const Building = require("../models/Building");
 const Space = require("../models/Space");
+const Device = require("../models/Device")
 
-// Obtener todos los edificios
 exports.getAllBuildings = async (req, res) => {
     try {
         const buildings = await Building.find();
-        res.json(buildings);
+
+        const buildingsWithCounts = await Promise.all(
+            buildings.map(async (building) => {
+                const spaceCount = await Space.countDocuments({ building: building._id });
+
+                const spaceIds = await Space.find({ building: building._id }).select('_id');
+                const deviceCount = await Device.countDocuments({ space: { $in: spaceIds.map(s => s._id) } });
+
+                return {
+                    _id: building._id,
+                    name: building.name,
+                    spaceCount,
+                    deviceCount
+                };
+            })
+        );
+
+        res.json(buildingsWithCounts);
     } catch (error) {
-        res.status(500).json({ error: 'Error al obtener los edificios' });
+        res.status(500).json({ error: `Error al obtener los edificios: ${error.message}` });
     }
 };
 

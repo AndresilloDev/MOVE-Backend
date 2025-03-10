@@ -9,7 +9,7 @@ POST http://localhost:3000/api/buildings
 Content-Type: application/json
 
 {
-    "name": "D1"
+    "name": "D4"
 }
 
 ### Actualizar un edificio
