@@ -1,11 +1,15 @@
 const Device = require('../models/Device');
 
-const getDevices = async (req, res) => {
+exports.getDevices = async (req, res) => {
     try {
-        const devices = await Device.find({ deleted: { $ne: true } });
+        const devices = await Device.find({ deleted: { $ne: true } })
+            .populate('building', 'name')
+            .populate('space', 'name');
+
         if (devices.length === 0) {
             return res.status(404).json({ message: 'No devices found' });
         }
+
         return res.status(200).json(devices);
     } catch (error) {
         console.error(error);
@@ -13,7 +17,7 @@ const getDevices = async (req, res) => {
     }
 };
 
-const getDevice = async (req, res) => {
+exports.getDevice = async (req, res) => {
     try {
         const { deviceId } = req.params;
         const device = await Device.findOne({ _id: deviceId, deleted: { $ne: true } });
@@ -29,7 +33,7 @@ const getDevice = async (req, res) => {
     }
 };
 
-const deleteDevice = async (req, res) => {
+exports.deleteDevice = async (req, res) => {
     try {
         const { deviceId } = req.params;
 
@@ -48,5 +52,3 @@ const deleteDevice = async (req, res) => {
         return res.status(500).json({ message: 'Server error' });
     }
 };
-
-module.exports = {getDevices,getDevice,deleteDevice};
