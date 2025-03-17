@@ -6,6 +6,7 @@ const spaceRoutes = require('./spaceRoutes')
 const sensorDataRoutes = require('./sensorDataRoutes')
 const deviceRoutes = require('./deviceRoutes')
 const userRoutes = require('./userRoutes')
+const authRoutes = require('./authRoutes')
 
 /*
 const notificationRoutes = require('./notificationRoutes')
@@ -18,6 +19,7 @@ router.use('/buildings', buildingRoutes);
 router.use('/buildings', spaceRoutes);
 router.use('/devices', deviceRoutes);
 router.use('/users', userRoutes);
+router.use('/auth', authRoutes);
 
 /*
 router.use('/notifications', notificationRoutes);
