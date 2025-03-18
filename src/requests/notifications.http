@@ -1,5 +1,5 @@
-### Obtener todas las notificaciones
-GET http://localhost:3000/api/notifications
+### Obtener todas las notificaciones NO archivadas
+GET http://localhost:3000/api/notifications/unfiled
 
 ### Obtener una notificación por ID
 GET http://localhost:3000/api/notifications/67c3bb18836aea9d621e6d9e
@@ -19,13 +19,14 @@ Content-Type: application/json
     "date": "2025-03-15T14:30:00Z",
     "sensor": "Temperature Sensor",
     "device": "67c3bb18836aea9d621e6d9f",
-    "status": "active"
+    "image": "https://example.com/image.jpg",
+    "status": true
 }
 
 ### Archivar una notificación
-PUT http://localhost:3000/api/notifications/file/67c3bb18836aea9d621e6d9e
+PUT http://localhost:3000/api/notifications/filed/67c3bb18836aea9d621e6d9e
 Content-Type: application/json
 
 {
-    "status": "filed"
+    "status": false
 }

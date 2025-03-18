@@ -2,13 +2,13 @@ const Notification = require("../models/Notification");
 const Device = require("../models/Device");
 const SensorData = require("../models/SensorData");
 
-// Obtener todas las notificaciones
-exports.getNotifications = async (req, res) => {
+// Obtener todas las notificaciones NO archivadas
+exports.getUnfiledNotifications = async (req, res) => {
     try {
-        const notifications = await Notification.find();
+        const notifications = await Notification.find({ status: true });
         res.json(notifications);
     } catch (error) {
-        res.status(500).json({ error: `Error al obtener las notificaciones: ${error.message}` });
+        res.status(500).json({ error: `Error al obtener las notificaciones no archivadas: ${error.message}` });
     }
 };
 
@@ -51,7 +51,7 @@ exports.getFiledNotification = async (req, res) => {
 // Crear una nueva notificación
 exports.createNotification = async (req, res) => {
     try {
-        const { name, date, sensor, device } = req.body;
+        const { name, date, sensor, device, image } = req.body;
 
         // Verificar si el dispositivo existe
         const existingDevice = await Device.findById(device);
@@ -70,6 +70,7 @@ exports.createNotification = async (req, res) => {
             date: date || new Date(),
             sensor,
             device,
+            image,
             status: true
         });
 
@@ -81,7 +82,7 @@ exports.createNotification = async (req, res) => {
 };
 
 // Archivar una notificación (cambiar su estado a false)
-exports.fileNotification = async (req, res) => {
+exports.filedNotification = async (req, res) => {
     try {
         const updatedNotification = await Notification.findByIdAndUpdate(
             req.params.id,

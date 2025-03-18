@@ -21,6 +21,11 @@ const notificationSchema = new mongoose.Schema({
         required: [true, 'El dispositivo es obligatorio'],
         trim: true,
     },
+    image: {
+        type: String,
+        required: [true, 'La imagen es obligatoria'],
+        trim: true,
+    },
     status: {
         type: Boolean,
         default: true,
