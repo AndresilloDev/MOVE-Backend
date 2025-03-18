@@ -9,17 +9,17 @@ const DeviceSchema = new mongoose.Schema(
         },
         name: {
             type: String,
-            required: true
+            default: "Dispositivo sin asignar"
         },
         building: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Building',
-            required: true
+            default: null
         },
         space: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Space',
-            required: true
+            default: null
         },
         deleted: {
             type: Boolean,

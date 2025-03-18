@@ -5,5 +5,6 @@ const devicesController = require('../controllers/devicesController');
 router.get('/', devicesController.getDevices);
 router.get('/:deviceId', devicesController.getDevice);
 router.delete('/:deviceId', devicesController.deleteDevice);
+router.post('/register', devicesController.registerDevice);
 
 module.exports = router;
