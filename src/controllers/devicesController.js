@@ -14,7 +14,7 @@ exports.registerDevice = async (req, res) => {
             // Si el dispositivo no existe, lo creamos
             device = new Device({
                 id,
-                name: "Dispositivo sin asignar",
+                name: "Nuevo Dispositivo",
                 building: null,
                 space: null,
                 deleted: false
@@ -74,18 +74,19 @@ exports.deleteDevice = async (req, res) => {
     try {
         const { deviceId } = req.params;
 
-        const device = await Device.findOne({ _id: deviceId });
+        const device = await Device.findOneAndUpdate(
+            { _id: deviceId, deleted: { $ne: true } }, 
+            { deleted: true }, 
+            { new: true }
+        );
 
         if (!device) {
-            return res.status(404).json({ message: 'Device not found' });
+            return res.status(404).json({ message: 'Dispositivo no encontrado o ya eliminado' });
         }
 
-        device.deleted = true;
-        await device.save();
-
-        return res.status(200).json({ message: 'Device deleted successfully' });
+        return res.status(200).json({ message: 'Dispositivo eliminado correctamente', device });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+        console.error("[ERROR] Error eliminando el dispositivo:", error);
+        return res.status(500).json({ message: 'Error en el servidor' });
     }
 };

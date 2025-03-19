@@ -9,7 +9,7 @@ const DeviceSchema = new mongoose.Schema(
         },
         name: {
             type: String,
-            default: "Dispositivo sin asignar"
+            default: "Nuevo Dispositivo"
         },
         building: {
             type: mongoose.Schema.Types.ObjectId,
