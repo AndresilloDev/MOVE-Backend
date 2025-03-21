@@ -22,8 +22,13 @@ const userSchema = new mongoose.Schema({
         required: [true, 'La contraseña es obligatorio'],
         trim: true,
     },
+    isSuperAdmin: {
+        type: Boolean,
+        default: false,
+    },
     status: {
         type: Boolean,
+        default: true,
     },
 })
 

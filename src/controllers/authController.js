@@ -36,15 +36,11 @@ exports.logoutAuth = async (req, res) => {
         .json({ message: "Sesión Cerrada"})
 };
 
-exports.protected = async (req, res) => {
-    // Obtenemos el usuario de la sesión, si esta logeado
+exports.isLoggedAuth = async (req, res, next) => {
     const { user } = req.session;
-
-    // Si no esta logeado, denegamos el acceso
-    if (user === null) {
-        return res.status(403).json('Acceso no autorizado');
+    if (user) {
+        return res.json({ user: req.session.user });
     }
-
-    // Si esta logeado, permitimos el trafico
-    res.json('Acceso Autorizado');
-}
+    res.status(403).json({ message: "No autenticado" });
+    next()
+};
