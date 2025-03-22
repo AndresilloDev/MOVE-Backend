@@ -1,5 +1,4 @@
 ### POST Login contraseña correcta
-
 POST http://localhost:3000/api/auth/login
 Content-Type: application/json
 
@@ -18,10 +17,4 @@ Content-Type: application/json
 }
 
 ### POST Cerrar sesión
-
 POST http://localhost:3000/api/auth/logout
-
-### GET Acceder a ruta protegida (login)
-
-GET http://localhost:3000/api/auth/protected
-

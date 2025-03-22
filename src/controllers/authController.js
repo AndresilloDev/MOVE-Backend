@@ -22,25 +22,23 @@ exports.loginAuth = async (req, res) => {
         expiresIn: '1h',
     })
 
+    const newUser = {
+        _id: findUser._id,
+        name: findUser.name,
+        user: findUser.user,
+        status: findUser.status,
+    }
+
     res.cookie('access_token', token, {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
         expires: new Date(Date.now() + 60 * 60 * 1000),
-    }).status(200).json({ user, token });
+    }).status(200).json({ user: newUser, token });
 };
 
 // Logout de usuario
 exports.logoutAuth = async (req, res) => {
     res.clearCookie('access_token')
         .json({ message: "Sesión Cerrada"})
-};
-
-exports.isLoggedAuth = async (req, res, next) => {
-    const { user } = req.session;
-    if (user) {
-        return res.json({ user: req.session.user });
-    }
-    res.status(403).json({ message: "No autenticado" });
-    next()
 };
