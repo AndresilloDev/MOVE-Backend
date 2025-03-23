@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 const notificationSchema = new mongoose.Schema({
     name: {
@@ -7,9 +8,9 @@ const notificationSchema = new mongoose.Schema({
         trim: true,
     },
     date: {
-        type: Date,
+        type: String,
         required: [true, 'La fecha de la notificación es obligatoria'],
-        default: Date.now,
+        default: () => moment().format('YYYY-MM-DD HH:mm:ss'),
     },
     sensor: {
         type: String,

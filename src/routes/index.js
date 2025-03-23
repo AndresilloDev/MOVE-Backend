@@ -1,16 +1,15 @@
 const express = require('express');
 const router = express.Router();
 
-const buildingRoutes = require('./buildingRoutes')
-const spaceRoutes = require('./spaceRoutes')
-const sensorDataRoutes = require('./sensorDataRoutes')
-const deviceRoutes = require('./deviceRoutes')
-const userRoutes = require('./userRoutes')
-const authRoutes = require('./authRoutes')
+const buildingRoutes = require('./buildingRoutes');
+const spaceRoutes = require('./spaceRoutes');
+const sensorDataRoutes = require('./sensorDataRoutes');
+const deviceRoutes = require('./deviceRoutes');
+const userRoutes = require('./userRoutes');
+const authRoutes = require('./authRoutes');
+const notificationRoutes = require('./notificationRoutes'); 
 
 /*
-const notificationRoutes = require('./notificationRoutes')
-const userRoutes = require('./userRoutes')
 const loginRoute = require('./loginRoute')
 */
 
@@ -20,9 +19,9 @@ router.use('/spaces', spaceRoutes);
 router.use('/devices', deviceRoutes);
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
+router.use('/notifications', notificationRoutes); 
 
 /*
-router.use('/notifications', notificationRoutes);
 router.use('/users', userRoutes);
 router.use('/login', loginRoute);
 */

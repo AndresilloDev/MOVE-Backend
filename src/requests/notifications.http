@@ -15,12 +15,10 @@ POST http://localhost:3000/api/notifications
 Content-Type: application/json
 
 {
-    "name": "High Temperature Alert",
-    "date": "2025-03-15T14:30:00Z",
-    "sensor": "Temperature Sensor",
-    "device": "67c3bb18836aea9d621e6d9f",
-    "image": "https://example.com/image.jpg",
-    "status": true
+  "name": "Alerta de fuego",
+  "sensor": "CO2",
+  "device": "65fd9b2e4f1a2c001c1a8e2a",
+  "image": "https://imagnAleta.png"
 }
 
 ### Archivar una notificación
