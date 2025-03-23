@@ -49,6 +49,7 @@ exports.getFiledNotification = async (req, res) => {
 };
 
 // Crear una nueva notificación
+const moment = require('moment');
 exports.createNotification = async (req, res) => {
     try {
         const { name, date, sensor, device, image } = req.body;
@@ -59,15 +60,18 @@ exports.createNotification = async (req, res) => {
             return res.status(400).json({ error: "El dispositivo especificado no existe" });
         }
 
-        // Verificar si el sensor existe para el dispositivo
+        // Verificar si el sensor existe en el dispositivo
         const existingSensor = await SensorData.findOne({ device, sensorName: sensor });
         if (!existingSensor) {
             return res.status(400).json({ error: "El sensor especificado no existe en este dispositivo" });
         }
 
+        // Convertir la fecha al formato correcto
+        const formattedDate = moment(date).format('YYYY-MM-DD HH:mm:ss');
+
         const newNotification = new Notification({
             name,
-            date: date || new Date(),
+            date: formattedDate,
             sensor,
             device,
             image,
@@ -80,6 +84,7 @@ exports.createNotification = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
 
 // Archivar una notificación (cambiar su estado a false)
 exports.filedNotification = async (req, res) => {
