@@ -90,3 +90,27 @@ exports.deleteDevice = async (req, res) => {
         return res.status(500).json({ message: 'Error en el servidor' });
     }
 };
+
+exports.updateDevice = async (req, res) => {
+    try {
+        const { deviceId } = req.params;
+        const { name, building, space } = req.body;
+
+        const device = await Device.findOne({ _id: deviceId, deleted: { $ne: true } });
+
+        if (!device) {
+            return res.status(404).json({ message: 'Device not found or deleted' });
+        }
+
+        if (name) device.name = name;
+        if (building) device.building = building;
+        if (space) device.space = space;
+
+        await device.save();
+
+        return res.status(200).json({ message: 'Device updated successfully', device });
+    } catch (error) {
+        console.error("[ERROR] Error updating the device:", error);
+        return res.status(500).json({ message: 'Error in server' });
+    }
+};

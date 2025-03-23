@@ -16,7 +16,7 @@ const loginRoute = require('./loginRoute')
 
 router.use('/sensorData', sensorDataRoutes);
 router.use('/buildings', buildingRoutes);
-router.use('/buildings', spaceRoutes);
+router.use('/spaces', spaceRoutes);
 router.use('/devices', deviceRoutes);
 router.use('/users', userRoutes);
 router.use('/auth', authRoutes);
