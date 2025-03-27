@@ -23,7 +23,6 @@ Content-Type: application/json
   "name": "Erick v2",
   "lastName": "Teja v2",
   "user": "Elegidokawai v2",
-  "password": "admin1234"
 }
 
 ### Eliminar un usuario

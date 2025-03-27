@@ -14,3 +14,4 @@ npm-debug.log*
 # Compilaciones
 dist/
 build/
+.idea/
