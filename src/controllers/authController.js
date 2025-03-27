@@ -34,7 +34,7 @@ exports.loginAuth = async (req, res) => {
         secure: false,
         sameSite: 'strict',
         expires: new Date(Date.now() + 60 * 60 * 1000),
-    }).status(200).json({ user: newUser, token });
+    }).status(200).json({ user: newUser });
 };
 
 // Logout de usuario
@@ -42,3 +42,11 @@ exports.logoutAuth = async (req, res) => {
     res.clearCookie('access_token')
         .json({ message: "Sesión Cerrada"})
 };
+
+exports.checkAuth = async (req, res) => {
+    try {
+        jwt.verify(req.cookies.access_token, process.env.JWT_SECRET);
+    } catch {
+        res.status(401).end();
+    }
+}

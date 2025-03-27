@@ -37,6 +37,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const routes = require('./routes');
+const req = require("express/lib/request");
 app.use('/api', routes);
 
 module.exports = app;
