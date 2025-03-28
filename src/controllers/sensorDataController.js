@@ -1,72 +1,53 @@
+const SensorData = require('../models/SensorData'); // Modelo de los datos de sensores
 const mongoose = require('mongoose');
-const SensorData = require('../models/SensorData');
 
-const getDeviceSensorsValues = async (req, res) => {
+// Obtener los valores actuales de los sensores de un dispositivo
+exports.getDeviceSensorsValues = async (req, res) => {
     try {
-        const { device } = req.params;
+        const { deviceId } = req.params;
+        const objectId = new mongoose.Types.ObjectId(deviceId); // Convertir a ObjectId
 
-        if (!mongoose.Types.ObjectId.isValid(device)) {
-            return res.status(400).json({ message: 'Invalid device ID format' });
+        // Buscar todos los sensores asociados al dispositivo
+        const latestData = await SensorData.find({ device: objectId }).sort({ 'data.time': -1 });
+
+        if (!latestData || latestData.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron datos para este dispositivo' });
         }
 
-        const sensors = await SensorData.find({ device: new mongoose.Types.ObjectId(device) });
-
-        if (sensors.length === 0) {
-            return res.status(404).json({ message: 'No sensors found for this device' });
-        }
-
-        const latestSensorValues = sensors.map(sensor => ({
-            sensorName: sensor.sensorName,
-            lastData: sensor.data.length > 0 ? sensor.data[sensor.data.length - 1] : null
-        }));
-
-        return res.status(200).json(latestSensorValues);
+        res.json(latestData);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+        console.error('Error obteniendo datos del sensor:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
 
-const getAllSensorDataInRange = async (req, res) => {
+// Obtener datos de sensores en un rango de tiempo
+exports.getAllSensorDataInRange = async (req, res) => {
     try {
-        const { device } = req.params;
-        const { sensorName, startDate, endDate } = req.query;
+        const { deviceId } = req.params;
+        const { start, end } = req.query;
 
-        if (!sensorName || !startDate || !endDate) {
-            return res.status(400).json({ message: 'sensorName, startDate, and endDate must be provided' });
+        const objectId = new mongoose.Types.ObjectId(deviceId); 
+
+        if (!start || !end) {
+            return res.status(400).json({ error: 'Debe proporcionar un rango de fechas (start y end)' });
         }
 
-        const start = new Date(startDate);
-        const end = new Date(endDate);
+        const startDate = new Date(start);
+        const endDate = new Date(end);
 
-        if (isNaN(start) || isNaN(end)) {
-            return res.status(400).json({ message: 'Invalid date format' });
+        const sensorData = await SensorData.find({
+            deviceId: objectId,
+            createdAt: { $gte: startDate, $lte: endDate }
+        }).sort({ createdAt: 1 });
+
+        if (sensorData.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron datos en el rango de fechas especificado' });
         }
 
-        if (!mongoose.Types.ObjectId.isValid(device)) {
-            return res.status(400).json({ message: 'Invalid device ID format' });
-        }
-
-        const sensorData = await SensorData.findOne({
-            device: new mongoose.Types.ObjectId(device),
-            sensorName
-        });
-
-        if (!sensorData) {
-            return res.status(404).json({ message: 'No sensor data found for this sensor' });
-        }
-
-        const filteredData = sensorData.data.filter(entry => entry.time >= start && entry.time <= end);
-
-        if (filteredData.length === 0) {
-            return res.status(404).json({ message: 'No sensor data found in the given range' });
-        }
-
-        return res.status(200).json(filteredData);
+        res.json(sensorData);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Server error' });
+        console.error('Error obteniendo datos en el rango de tiempo:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
     }
 };
-
-module.exports = { getDeviceSensorsValues, getAllSensorDataInRange };
