@@ -1,7 +1,6 @@
 const Space = require('../models/Space');
 const Building = require('../models/Building');
-//const Device = require('../models/Device');
-
+const Device = require('../models/Device');
 
 //Obtener todos los espacios por buildingId
 exports.getSpacesByBuildingId = async(req, res) => {
@@ -14,7 +13,20 @@ exports.getSpacesByBuildingId = async(req, res) => {
         }
 
         const spaces = await Space.find({ building: buildingId });
-        res.json(spaces);
+
+        const spacesWithCounts = await Promise.all(
+            spaces.map(async (space) => {
+                console.log(space._id);
+                const deviceCount = await Device.countDocuments({ space: space._id });
+                console.log(deviceCount);
+                return {
+                    _id: space._id,
+                    name: space.name,
+                    deviceCount
+                };
+            }
+        ));
+        res.json(spacesWithCounts);
     } catch(error) {
         res.status(500).json({ message: "Error al obtener los espacios" });
     }
@@ -35,8 +47,18 @@ exports.getSpaceById = async(req, res) => {
             return res.status(404).json({ message: "No se ha encontrado el espacio" });
         }
 
-        res.json(space);
-
+        const spacesWithCounts = await Promise.all(
+            space.map(async (space) => {
+                const deviceCount = await Device.countDocuments({ space: space._id });
+                console.log(deviceCount);
+                return {
+                    _id: space._id,
+                    name: space.name,
+                    deviceCount
+                };
+            })
+        );
+        res.json(spacesWithCounts);
     } catch(error) {
         return res.status(500).json({ message: "Error al crear el espacio" });
     }

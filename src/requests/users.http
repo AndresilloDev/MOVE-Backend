@@ -1,0 +1,29 @@
+### Obtener todos los usuarios
+GET http://localhost:3000/api/users
+
+### Obtener un usuario
+GET http://localhost:3000/api/users/67c7ce0c0da95895dc0e5f16
+
+### Crear un usuario
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{
+  "name": "cesar123",
+  "lastName": "cesar123",
+  "user": "cesar123@gmail.com",
+  "password": "cesar123"
+}
+
+### Actualizar un usuario
+PUT http://localhost:3000/api/users/67c7ce0c0da95895dc0e5f16
+Content-Type: application/json
+
+{
+  "name": "Erick v2",
+  "lastName": "Teja v2",
+  "user": "Elegidokawai v2",
+}
+
+### Eliminar un usuario
+DELETE http://localhost:3000/api/users/67d734d747f53ec45adc033d

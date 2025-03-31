@@ -1,5 +1,5 @@
 ### Obtener todos los espacios de un edificio
-GET http://localhost:3000/api/buildings/67c3bb18836aea9d621e6d9e/spaces
+GET http://localhost:3000/api/buildings/67ce2a665235b576ecce0b67/spaces
 Content-Type: application/json
 
 ### Obtener un espacio específico dentro de un edificio
