@@ -14,12 +14,11 @@ const DeviceSchema = new mongoose.Schema(
         building: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Building',
-            default: null
         },
         space: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Space',
-            default: null
+            default: null,
         },
         deleted: {
             type: Boolean,

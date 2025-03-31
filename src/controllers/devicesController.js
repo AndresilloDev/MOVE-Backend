@@ -1,4 +1,6 @@
+const Building = require('../models/Building');
 const Device = require('../models/Device');
+const Space = require('../models/Space');
 
 exports.registerDevice = async (req, res) => {
     try {
@@ -43,10 +45,6 @@ exports.getDevices = async (req, res) => {
             .populate('building', 'name')
             .populate('space', 'name');
 
-        if (devices.length === 0) {
-            return res.status(404).json({ message: 'No devices found' });
-        }
-
         return res.status(200).json(devices);
     } catch (error) {
         console.error(error);
@@ -58,10 +56,6 @@ exports.getDevice = async (req, res) => {
     try {
         const { deviceId } = req.params;
         const device = await Device.findOne({ _id: deviceId, deleted: { $ne: true } });
-
-        if (!device) {
-            return res.status(404).json({ message: 'Device not found' });
-        }
 
         return res.status(200).json(device);
     } catch (error) {
@@ -96,15 +90,20 @@ exports.updateDevice = async (req, res) => {
         const { deviceId } = req.params;
         const { name, building, space } = req.body;
 
-        const device = await Device.findOne({ _id: deviceId, deleted: { $ne: true } });
+        const device = await Device.findOne({ _id: deviceId });
 
         if (!device) {
             return res.status(404).json({ message: 'Device not found or deleted' });
         }
 
-        if (name) device.name = name;
-        if (building) device.building = building;
-        if (space) device.space = space;
+        //Obtener el id del espacio y del edificio a actualizar
+        const buildingId = await Building.findOne({ name: building.name });
+        const spaceId = await Space.findOne({ name: space.name, building: buildingId._id });
+
+        device.name = name;
+        device.building = buildingId._id;
+        device.space = spaceId._id;
+
 
         await device.save();
 

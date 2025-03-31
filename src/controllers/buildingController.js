@@ -28,6 +28,19 @@ exports.getAllBuildings = async (req, res) => {
     }
 };
 
+// Obtener un edificio por nombre
+exports.getBuildingByName = async (req, res) => {
+    try {
+        const building = await Building.findOne({ name: req.params.name });
+        if (!building) {
+            return res.status(404).json({ error: 'Edificio no encontrado' });
+        }
+        res.json(building);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al buscar el edificio' });
+    }
+};
+
 // Obtener un edificio por ID
 exports.getBuildingById = async (req, res) => {
     try {
