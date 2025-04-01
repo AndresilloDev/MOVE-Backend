@@ -34,7 +34,7 @@ exports.loginAuth = async (req, res) => {
         secure: false,
         sameSite: 'strict',
         expires: new Date(Date.now() + 60 * 60 * 1000),
-    }).status(200).json({ user: newUser });
+    }).status(200).json({ user: newUser, token });
 };
 
 // Logout de usuario

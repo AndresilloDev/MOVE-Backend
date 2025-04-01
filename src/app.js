@@ -9,18 +9,19 @@ const jwt = require("jsonwebtoken");
 const setupMQTTConnection = require('./config/mqttConfig');
 
 const app = express();
+app.use(express.json());
+app.use(cookieParser());
+app.disable('X-Powered-By');
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:5173', 'http://localhost:8081'],
+    origin: true,
     methods: ['GET', 'POST']
   }
 });
 
 connectDB();
-app.use(express.json());
-app.use(cookieParser());
-app.disable('X-Powered-By');
 
 // MQTT Connection
 const mqttClient = setupMQTTConnection();
@@ -36,25 +37,40 @@ io.on('connection', (socket) => {
 
 // JWT middleware
 app.use((req, res, next) => {
-  const token = req.cookies.access_token;
+  console.log("req")
+  let token = req.cookies?.access_token;
+
+  if (!token && req.headers.authorization) {
+    const authHeader = req.headers.authorization;
+    if (authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    }
+  }
+  
   req.session = { user: null }
 
+  if (!token) {
+    return next();
+  }
   try {
     const data = jwt.verify(token, process.env.JWT_SECRET);
     req.session.user = data;
-  } catch {} 
+  } catch (error){
+    console.error('JWT verification error:', error);
+  } 
   next()
 });
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'http://localhost:8081'],
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 };
 app.use(cors(corsOptions));
 
 const routes = require('./routes');
+const { invalid } = require('moment');
 app.use('/api', routes);
 
 // Export server instead of app to include Socket.IO

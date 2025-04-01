@@ -12,13 +12,13 @@ function setupMQTTConnection() {
     const client = mqtt.connect(MQTT_BROKER_URL);
 
     client.on('connect', () => {
-        console.log('Connected to MQTT Broker');
+        //console.log('Connected to MQTT Broker');
         // Subscribe to the topic pattern
         client.subscribe(TOPIC_PATTERN, (err) => {
             if (err) {
-                console.error('MQTT Subscription error:', err);
+                //console.error('MQTT Subscription error:', err);
             } else {
-                console.log(`Subscribed to topic: ${TOPIC_PATTERN}`);
+                //console.log(`Subscribed to topic: ${TOPIC_PATTERN}`);
             }
         });
     });
@@ -44,7 +44,7 @@ function setupMQTTConnection() {
 
             // If no valid value, skip processing
             if (sensorValue === null) {
-                console.log(`Skipping null value for device ${deviceId}, sensor ${sensorName}`);
+                //console.log(`Skipping null value for device ${deviceId}, sensor ${sensorName}`);
                 return;
             }
 
@@ -86,14 +86,14 @@ function setupMQTTConnection() {
             // Save sensor data
             await sensorData.save();
 
-            console.log(`Processed data for device ${deviceId}, sensor ${sensorName}: ${sensorValue}`);
+            //console.log(`Processed data for device ${deviceId}, sensor ${sensorName}: ${sensorValue}`);
         } catch (error) {
-            console.error('Error processing MQTT message:', error);
+            //console.error('Error processing MQTT message:', error);
         }
     });
 
     client.on('error', (err) => {
-        console.error('MQTT Connection error:', err);
+        //console.error('MQTT Connection error:', err);
     });
 
     return client;
