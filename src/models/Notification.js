@@ -17,9 +17,17 @@ const notificationSchema = new mongoose.Schema({
         required: [true, 'El sensor es obligatorio'],
         trim: true,
     },
-    device: {
+    device:{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Device", 
+        required: true 
+    },
+    building: {
         type: String,
-        required: [true, 'El dispositivo es obligatorio'],
+        trim: true,
+    },
+    space: {
+        type: String,
         trim: true,
     },
     image: {

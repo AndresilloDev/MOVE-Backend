@@ -37,7 +37,6 @@ io.on('connection', (socket) => {
 
 // JWT middleware
 app.use((req, res, next) => {
-  console.log("req")
   let token = req.cookies?.access_token;
 
   if (!token && req.headers.authorization) {

@@ -96,14 +96,18 @@ exports.updateDevice = async (req, res) => {
             return res.status(404).json({ message: 'Device not found or deleted' });
         }
 
-        //Obtener el id del espacio y del edificio a actualizar
-        const buildingId = await Building.findOne({ name: building.name });
-        const spaceId = await Space.findOne({ name: space.name, building: buildingId._id });
-
         device.name = name;
-        device.building = buildingId._id;
-        device.space = spaceId._id;
 
+        //Obtener el id del espacio y del edificio a actualizar
+        if (building) {
+            const buildingId = await Building.findOne({ name: building.name });
+            device.building = buildingId ? buildingId._id : null;
+        }
+
+        if (space) {
+            const spaceId = await Space.findOne({ name: space.name, building: device.building });
+            device.space = spaceId ? spaceId._id : null;
+        }
 
         await device.save();
 

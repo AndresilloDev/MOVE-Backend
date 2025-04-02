@@ -15,10 +15,11 @@ exports.getUnfiledNotifications = async (req, res) => {
 // Obtener una notificación por ID
 exports.getNotification = async (req, res) => {
     try {
-        const notification = await Notification.findById(req.params.id);
+        const notification = await Notification.findById(req.params.id).populate("device");
         if (!notification) {
             return res.status(404).json({ error: "Notificación no encontrada" });
         }
+        console.log(notification);
         res.json(notification);
     } catch (error) {
         res.status(500).json({ error: "Error al buscar la notificación" });
