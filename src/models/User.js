@@ -30,6 +30,11 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    token: {
+        type: String,
+        unique: true,
+        expires: 7200
+    }
 })
 
 const User = mongoose.model('User', userSchema);
