@@ -25,9 +25,13 @@ exports.getDeviceSensorsValues = async (req, res) => {
 exports.getAllSensorDataInRange = async (req, res) => {
     try {
         const { deviceId } = req.params;
-        const { start, end } = req.query;
+        const { start, end, sensorName } = req.query;
 
-        const objectId = new mongoose.Types.ObjectId(deviceId); 
+        if (!deviceId) {
+            return res.status(400).json({ error: 'ID de dispositivo requerido' });
+        }
+
+        const objectId = new mongoose.Types.ObjectId(deviceId);
 
         if (!start || !end) {
             return res.status(400).json({ error: 'Debe proporcionar un rango de fechas (start y end)' });
@@ -36,18 +40,66 @@ exports.getAllSensorDataInRange = async (req, res) => {
         const startDate = new Date(start);
         const endDate = new Date(end);
 
-        const sensorData = await SensorData.find({
-            deviceId: objectId,
-            createdAt: { $gte: startDate, $lte: endDate }
-        }).sort({ createdAt: 1 });
+        // Construye la consulta para buscar el sensor específico por nombre
+        let query = {
+            device: objectId,
+            sensorName: sensorName  // Filtramos por el nombre del sensor
+        };
 
-        if (sensorData.length === 0) {
-            return res.status(404).json({ error: 'No se encontraron datos en el rango de fechas especificado' });
+        // Primero obtén los documentos del sensor
+        const sensors = await SensorData.find(query);
+
+        if (sensors.length === 0) {
+            return res.status(404).json({ error: 'No se encontraron datos para los parámetros especificados' });
         }
 
-        res.json(sensorData);
+        // Para cada sensor, filtra los datos dentro del rango de fechas
+        const result = sensors.map(sensor => {
+            const filteredData = sensor.data.filter(item => {
+                const itemDate = new Date(item.time);
+                return itemDate >= startDate && itemDate <= endDate;
+            }).sort((a, b) => new Date(a.time) - new Date(b.time));
+
+            return {
+                _id: sensor._id,
+                sensorName: sensor.sensorName,
+                thresholds: sensor.thresholds,
+                device: sensor.device,
+                data: filteredData
+            };
+        });
+
+        res.json(result);
     } catch (error) {
         console.error('Error obteniendo datos en el rango de tiempo:', error);
+        res.status(500).json({ error: 'Error interno del servidor' });
+    }
+};
+
+
+// Actualizar los thresholds de un sensor
+exports.updateSensorThresholds = async (req, res) => {
+    try {
+        const { sensorId } = req.params;
+        const { upperThreshold, lowerThreshold } = req.body;
+        
+        const sensor = await SensorData.findById(sensorId);
+        
+        if (!sensor) {
+            return res.status(404).json({ error: 'Sensor no encontrado' });
+        }
+        
+        // Actualizar thresholds
+        sensor.thresholds = {
+            upper: upperThreshold !== undefined ? upperThreshold : sensor.thresholds?.upper,
+            lower: lowerThreshold !== undefined ? lowerThreshold : sensor.thresholds?.lower
+        };
+        
+        await sensor.save();
+        
+        res.json(sensor);
+    } catch (error) {
+        console.error('Error actualizando thresholds:', error);
         res.status(500).json({ error: 'Error interno del servidor' });
     }
 };

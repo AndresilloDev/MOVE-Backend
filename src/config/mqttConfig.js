@@ -7,18 +7,27 @@ const mongoose = require('mongoose');
 const MQTT_BROKER_URL = 'mqtt://test.mosquitto.org';
 const TOPIC_PATTERN = '/move/device/+/+';
 
+// Default thresholds for different sensor types
+const DEFAULT_THRESHOLDS = {
+    temperature: { lower: 10, upper: 34 },
+    humidity: { lower: 5, upper: 60 },
+    light: { lower: 0, upper: 2999},
+    sound: { lower: 0, upper: 70 },
+    co2: { lower: 0, upper: 2100 }
+};
+
 function setupMQTTConnection() {
     // Create MQTT client
     const client = mqtt.connect(MQTT_BROKER_URL);
 
     client.on('connect', () => {
-        //console.log('Connected to MQTT Broker');
+        console.log('Connected to MQTT Broker');
         // Subscribe to the topic pattern
         client.subscribe(TOPIC_PATTERN, (err) => {
             if (err) {
-                //console.error('MQTT Subscription error:', err);
+                console.error('MQTT Subscription error:', err);
             } else {
-                //console.log(`Subscribed to topic: ${TOPIC_PATTERN}`);
+                console.log(`Subscribed to topic: ${TOPIC_PATTERN}`);
             }
         });
     });
@@ -44,7 +53,7 @@ function setupMQTTConnection() {
 
             // If no valid value, skip processing
             if (sensorValue === null) {
-                //console.log(`Skipping null value for device ${deviceId}, sensor ${sensorName}`);
+                console.log(`Skipping null value for device ${deviceId}, sensor ${sensorName}`);
                 return;
             }
 
@@ -65,11 +74,18 @@ function setupMQTTConnection() {
             });
 
             if (!sensorData) {
+                // Get default thresholds based on sensor type
+                const thresholds = DEFAULT_THRESHOLDS[sensorName] || DEFAULT_THRESHOLDS.default;
+                
                 sensorData = new SensorData({
                     device: device._id,
                     sensorName: sensorName,
+                    thresholds: { lower: thresholds.lower, upper: thresholds.upper },
                     data: []
                 });
+            } else if (!sensorData.thresholds) {
+                // Ensure thresholds are always set
+                sensorData.thresholds = DEFAULT_THRESHOLDS[sensorName] || DEFAULT_THRESHOLDS.default;
             }
 
             // Add new data point
@@ -78,22 +94,17 @@ function setupMQTTConnection() {
                 value: sensorValue
             });
 
-            // Limit data points to last 100 entries
-            if (sensorData.data.length > 100) {
-                sensorData.data = sensorData.data.slice(-100);
-            }
-
-            // Save sensor data
+            // Save sensor data without limiting entries
             await sensorData.save();
 
-            //console.log(`Processed data for device ${deviceId}, sensor ${sensorName}: ${sensorValue}`);
+            console.log(`Processed data for device ${deviceId}, sensor ${sensorName}: ${sensorValue}`);
         } catch (error) {
-            //console.error('Error processing MQTT message:', error);
+            console.error('Error processing MQTT message:', error);
         }
     });
 
     client.on('error', (err) => {
-        //console.error('MQTT Connection error:', err);
+        console.error('MQTT Connection error:', err);
     });
 
     return client;

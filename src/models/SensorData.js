@@ -14,11 +14,13 @@ const sensorDataSchema = new mongoose.Schema({
     thresholds: {
         upper: {
             type: Number,
-            required: false
+            required: false,
+            default: 80 // Default value
         },
         lower: {
             type: Number,
-            required: false
+            required: false,
+            default: 20 // Default value
         }
     },
     data: [
