@@ -75,15 +75,14 @@ exports.createUser = async (req, res) => {
 // Actualizar un usuario
 exports.updateUser = async (req, res) => {
     try {
-        const { name, lastName } = req.body;
+        const { _id, name, lastName } = req.body;
 
         // Validación básica
         if (!name || !lastName) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
-
         const updatedUser = await User.findByIdAndUpdate(
-            req.params.id,
+            _id,
             { name, lastName },
             {
                 new: true,  

@@ -28,6 +28,7 @@ exports.loginAuth = async (req, res) => {
         _id: findUser._id,
         name: findUser.name,
         user: findUser.user,
+        lastName: findUser.lastName,
         status: findUser.status,
         isAdmin: findUser.isAdmin
     }

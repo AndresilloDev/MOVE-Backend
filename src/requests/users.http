@@ -9,10 +9,10 @@ POST http://localhost:3000/api/users
 Content-Type: application/json
 
 {
-  "name": "cesar123",
-  "lastName": "cesar123",
-  "user": "cesar123@gmail.com",
-  "password": "cesar123"
+  "name": "Erick",
+  "lastName": "Teja",
+  "user": "20233tn060@gmail.com",
+  "password": "admin123"
 }
 
 ### Actualizar un usuario
