@@ -2,12 +2,12 @@ const User = require("../models/User");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const crypto = require('crypto');
-const sendVerificationEmail  = require("../config/emailService");
+const { sendRecoverPasswordEmail, sendConfirmationEmail}  = require("../config/emailService");
 
 // Login de usuario
 exports.loginAuth = async (req, res) => {
     const { user, password } = req.body;
-    const findUser = await User.findOne({user: user}).exec();
+    const findUser = await User.findOne({user: user, status: true}).exec();
 
     if (!findUser) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -29,6 +29,7 @@ exports.loginAuth = async (req, res) => {
         name: findUser.name,
         user: findUser.user,
         status: findUser.status,
+        isAdmin: findUser.isAdmin
     }
 
     res.cookie('access_token', token, {
@@ -63,7 +64,7 @@ exports.recoverPasswordAuth = async (req, res) => {
             return res.status(404).json({ error: 'Usuario no encontrado' });
         }
 
-        await sendVerificationEmail(user, token);
+        await sendRecoverPasswordEmail(user, token);
 
         token = await bcrypt.hash(token, 12);
         await User.findByIdAndUpdate(
@@ -110,5 +111,34 @@ exports.changePasswordAuth = async (req, res) => {
         res.status(200).json({ message: "Contraseña cambiada correctamente" });
     } catch (error) {
         return res.status(500).json({ error: 'Error en el servidor' + error });
+    }
+}
+
+exports.confirmEmailAuth = async (req, res) => {
+    const { user } = req.body;
+
+    try {
+        let token = crypto.randomBytes(32).toString('base64url');
+        const findUser = await User.findOne({user: user}).exec();
+        if (!findUser) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        await sendConfirmationEmail(user, token);
+
+        token = await bcrypt.hash(token, 12);
+        await User.findByIdAndUpdate(
+            findUser._id,
+            { token },
+            {
+                new: true,
+                runValidators: true,
+                context: 'query'
+            }
+        );
+
+        res.status(200).json({ message: "Correo enviado" });
+    } catch (error) {
+        return res.status(404).json({ error: 'Usuario no encontrado' });
     }
 }

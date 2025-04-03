@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
         required: [true, 'La contraseña es obligatorio'],
         trim: true,
     },
-    isSuperAdmin: {
+    isAdmin: {
         type: Boolean,
         default: false,
     },
@@ -32,8 +32,9 @@ const userSchema = new mongoose.Schema({
     },
     token: {
         type: String,
+        expires: 7200,
         unique: true,
-        expires: 7200
+        sparse: true,
     }
 })
 

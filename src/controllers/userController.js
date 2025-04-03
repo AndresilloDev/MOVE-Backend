@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 // Obtener todos los usuarios
 exports.getAllUsers = async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await User.find({status: true});
         res.json(users);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener los usuarios' });
@@ -75,17 +75,17 @@ exports.createUser = async (req, res) => {
 // Actualizar un usuario
 exports.updateUser = async (req, res) => {
     try {
-        const { name, lastName, user } = req.body;
+        const { name, lastName } = req.body;
 
         // Validación básica
-        if (!name || !lastName || !user) {
+        if (!name || !lastName) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
 
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
-            { name, lastName, user },
-            { 
+            { name, lastName },
+            {
                 new: true,  
                 runValidators: true,  
                 context: 'query' 
@@ -106,12 +106,19 @@ exports.updateUser = async (req, res) => {
 // Eliminar un usuario
 exports.changeStatus = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        user.status = !user.status;
-        if (!user) {
-            return res.status(404).json({ error: 'Usuario no encontrado' });
-        }
-        res.json({ message: 'Usuario eliminado correctamente' });
+        const status = false;
+
+        await User.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            {
+                new: true,
+                runValidators: true,
+                context: 'query'
+            }
+        );
+
+        res.status(200).json({ message: 'Usuario eliminado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al cambiar el estado del usuario' });
     }
