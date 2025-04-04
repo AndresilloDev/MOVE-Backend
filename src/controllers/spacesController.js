@@ -16,13 +16,11 @@ exports.getSpacesByBuildingId = async(req, res) => {
 
         const spacesWithCounts = await Promise.all(
             spaces.map(async (space) => {
-                console.log(space._id);
                 const deviceCount = await Device.countDocuments({ space: space._id });
-                console.log(deviceCount);
                 return {
                     _id: space._id,
                     name: space.name,
-                    deviceCount
+                    deviceCount: deviceCount
                 };
             }
         ));
@@ -50,7 +48,6 @@ exports.getSpaceById = async(req, res) => {
         const spacesWithCounts = await Promise.all(
             space.map(async (space) => {
                 const deviceCount = await Device.countDocuments({ space: space._id });
-                console.log(deviceCount);
                 return {
                     _id: space._id,
                     name: space.name,
@@ -138,17 +135,5 @@ exports.deleteSpace = async(req, res) => {
 
     } catch(error) {
         return res.status(500).json({ message: "Error al eliminar el espacio" })
-    }
-}
-
-exports.getDeviceCountInSpace = async(req, res) => {
-    try {
-        const { spaceId } = req.params;
-
-        const deviceCount = await Device.countDocuments({ space: spaceId });
-
-        res.status(200).json({ spaceId, deviceCount });
-    } catch ( error ) {
-        return res.status(500).json({ message: "Error al contar la cantidad de dispositivos en el espacio"})
     }
 }

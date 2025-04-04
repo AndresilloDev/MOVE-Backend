@@ -55,8 +55,7 @@ app.use((req, res, next) => {
     const data = jwt.verify(token, process.env.JWT_SECRET);
     req.session.user = data;
   } catch (error){
-    console.error('JWT verification error:', error);
-  } 
+  }
   next()
 });
 

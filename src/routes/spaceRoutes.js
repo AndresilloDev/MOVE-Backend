@@ -8,6 +8,4 @@ router.get('/:buildingId/spaces/:spaceId', spaceController.getSpaceById);
 router.put('/:buildingId/spaces/:spaceId', spaceController.updateSpace);
 router.delete('/:buildingId/spaces/:spaceId', spaceController.deleteSpace);
 
-router.get('/:spaceId/devices/count', spaceController.getDeviceCountInSpace);
-
 module.exports = router;
