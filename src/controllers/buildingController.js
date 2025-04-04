@@ -87,10 +87,24 @@ exports.updateBuilding = async (req, res) => {
 // Eliminar un edificio
 exports.deleteBuilding = async (req, res) => {
     try {
-        const deletedBuilding = await Building.findByIdAndDelete(req.params.id);
+        const buildingId = req.params.id;
+        const deletedBuilding = await Building.findByIdAndDelete(buildingId);
         if (!deletedBuilding) {
             return res.status(404).json({ error: 'Edificio no encontrado' });
         }
+
+        await Space.deleteMany({ building: buildingId });
+
+        await Device.updateMany(
+            { 
+                $or: [
+                    { building: buildingId }, 
+                    { space: { $in: await Space.find({ building: buildingId }).select("_id") } }
+                ] 
+            },
+            { $unset: { building: "", space: "" } }
+        );
+
         res.json({ message: 'Edificio eliminado correctamente' });
     } catch (error) {
         res.status(500).json({ error: 'Error al eliminar el edificio' });
