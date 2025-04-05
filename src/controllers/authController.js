@@ -7,7 +7,9 @@ const { sendRecoverPasswordEmail, sendConfirmationEmail}  = require("../config/e
 // Login de usuario
 exports.loginAuth = async (req, res) => {
     const { user, password } = req.body;
-    const findUser = await User.findOne({user: user, status: true}).exec();
+    const clientType = req.headers['x-client-type'];
+
+    const findUser = await User.findOne({ user: user, status: true }).exec();
 
     if (!findUser) {
         return res.status(404).json({ error: 'Usuario no encontrado' });
@@ -21,7 +23,7 @@ exports.loginAuth = async (req, res) => {
 
     const token = jwt.sign({ id: findUser._id, user: findUser.user }, process.env.JWT_SECRET, {
         expiresIn: '1h',
-    })
+    });
 
     const newUser = {
         _id: findUser._id,
@@ -30,18 +32,18 @@ exports.loginAuth = async (req, res) => {
         lastName: findUser.lastName,
         status: findUser.status,
         isAdmin: findUser.isAdmin
+    };
+
+    if (clientType === 'mobile') {
+        return res.status(200).json({ user: newUser, token });
     }
 
-    if (req.headers['user-agent'] && req.headers['user-agent'].includes('Mozilla')) {
-        res.cookie('access_token', token, {
-            httpOnly: true,
-            secure: false,
-            sameSite: 'strict',
-            expires: new Date(Date.now() + 60 * 60 * 1000),
-        }).status(200).json({ user: newUser });
-    } else {
-        res.status(200).json({ user: newUser, token });
-    }
+    res.cookie('access_token', token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'strict',
+        expires: new Date(Date.now() + 60 * 60 * 1000),
+    }).status(200).json({ user: newUser });
 };
 
 // Logout de usuario
