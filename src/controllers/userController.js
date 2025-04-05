@@ -105,20 +105,10 @@ exports.updateUser = async (req, res) => {
 // Eliminar un usuario
 exports.changeStatus = async (req, res) => {
     try {
-        const status = false;
-
-        await User.findByIdAndUpdate(
-            req.params.id,
-            { status },
-            {
-                new: true,
-                runValidators: true,
-                context: 'query'
-            }
-        );
+        await User.findByIdAndDelete(req.params.id);
 
         res.status(200).json({ message: 'Usuario eliminado correctamente' });
     } catch (error) {
-        res.status(500).json({ error: 'Error al cambiar el estado del usuario' });
+        res.status(500).json({ error: 'Error al eliminar el usuario' });
     }
 };

@@ -19,7 +19,6 @@ exports.loginAuth = async (req, res) => {
         return res.status(401).json({ error: 'La contraseña es incorrecta' });
     }
 
-    // Creamos un token y mandamos los parametros _id y user
     const token = jwt.sign({ id: findUser._id, user: findUser.user }, process.env.JWT_SECRET, {
         expiresIn: '1h',
     })
@@ -33,12 +32,16 @@ exports.loginAuth = async (req, res) => {
         isAdmin: findUser.isAdmin
     }
 
-    res.cookie('access_token', token, {
-        httpOnly: true,
-        secure: false,
-        sameSite: 'strict',
-        expires: new Date(Date.now() + 60 * 60 * 1000),
-    }).status(200).json({ user: newUser, token });
+    if (req.headers['user-agent'] && req.headers['user-agent'].includes('Mozilla')) {
+        res.cookie('access_token', token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            expires: new Date(Date.now() + 60 * 60 * 1000),
+        }).status(200).json({ user: newUser });
+    } else {
+        res.status(200).json({ user: newUser, token });
+    }
 };
 
 // Logout de usuario
@@ -49,11 +52,27 @@ exports.logoutAuth = async (req, res) => {
 
 exports.checkAuth = async (req, res) => {
     try {
-        jwt.verify(req.cookies.access_token, process.env.JWT_SECRET);
-    } catch {
-        res.status(401).end();
+        let token;
+
+        if (req.cookies && req.cookies.access_token) {
+            token = req.cookies.access_token;
+        } else if (
+            req.headers.authorization &&
+            req.headers.authorization.startsWith("Bearer ")
+        ) {
+            token = req.headers.authorization.split(" ")[1];
+        }
+
+        if (!token) {
+            return res.status(401).json({ error: "Token no proporcionado" });
+        }
+
+        jwt.verify(token, process.env.JWT_SECRET);
+        return res.sendStatus(200);
+    } catch (error) {
+        return res.status(401).json({ error: "Token inválido o expirado" });
     }
-}
+};
 
 exports.recoverPasswordAuth = async (req, res) => {
     const { user } = req.body;

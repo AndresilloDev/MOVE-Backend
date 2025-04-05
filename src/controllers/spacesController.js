@@ -127,6 +127,11 @@ exports.deleteSpace = async(req, res) => {
             return res.status(404).json({ message: "Espacio no encontrado en el edificio" });
         }
 
+        await Device.updateMany(
+            { space: spaceId },
+            { $unset: { space: "" } }
+        );
+
         res.json( deletedSpace )
 
     } catch(error) {
