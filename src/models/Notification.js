@@ -22,6 +22,10 @@ const notificationSchema = new mongoose.Schema({
         ref: "Device", 
         required: true 
     },
+    value:{
+        type: String,
+        trim: true,
+    },
     building: {
         type: String,
         trim: true,
@@ -32,7 +36,7 @@ const notificationSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        required: [true, 'La imagen es obligatoria'],
+        required: false,
         trim: true,
     },
     status: {

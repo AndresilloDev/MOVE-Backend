@@ -31,35 +31,31 @@ exports.getSpacesByBuildingId = async(req, res) => {
 }
 
 //Obtener un espacio por su id
-exports.getSpaceById = async(req, res) => {
-    try{
+exports.getSpaceById = async (req, res) => {
+    try {
         const { buildingId, spaceId } = req.params;
         const building = await Building.findById(buildingId);
 
-        if(!building) {
+        if (!building) {
             return res.status(404).json({ message: "No se ha encontrado el edificio" });
         }
 
-        const space = await Space.findOne({ _id:spaceId, building: buildingId });
-        if(!space) {
+        const space = await Space.findOne({ _id: spaceId, building: buildingId });
+        if (!space) {
             return res.status(404).json({ message: "No se ha encontrado el espacio" });
         }
 
-        const spacesWithCounts = await Promise.all(
-            space.map(async (space) => {
-                const deviceCount = await Device.countDocuments({ space: space._id });
-                return {
-                    _id: space._id,
-                    name: space.name,
-                    deviceCount
-                };
-            })
-        );
-        res.json(spacesWithCounts);
-    } catch(error) {
-        return res.status(500).json({ message: "Error al crear el espacio" });
+        const deviceCount = await Device.countDocuments({ space: space._id });
+
+        res.json({
+            _id: space._id,
+            name: space.name,
+            deviceCount
+        });
+    } catch (error) {
+        return res.status(500).json({ message: "Error al obtener el espacio" });
     }
-}
+};
 
 //Crear un espacio dentro de un edificio
 exports.createSpace = async(req, res) => {

@@ -1,28 +1,32 @@
 const mqtt = require('mqtt');
 const Device = require('../models/Device');
 const SensorData = require('../models/SensorData');
-const mongoose = require('mongoose');
+const Notification = require("../models/Notification"); 
 
-// Mosquitto public broker details
 const MQTT_BROKER_URL = 'mqtt://test.mosquitto.org';
 const TOPIC_PATTERN = '/move/device/+/+';
 
-// Default thresholds for different sensor types
 const DEFAULT_THRESHOLDS = {
     temperature: { lower: 10, upper: 34 },
     humidity: { lower: 5, upper: 60 },
-    light: { lower: 0, upper: 2999},
+    light: { lower: 0, upper: 2999 },
     sound: { lower: 0, upper: 70 },
     co2: { lower: 0, upper: 2100 }
 };
 
+const SENSOR_TRANSLATIONS = {
+    light: "luz",
+    sound: "sonido",
+    temperature: "temperatura",
+    humidity: "humedad",
+    co2: "dióxido de carbono"
+};
+
 function setupMQTTConnection() {
-    // Create MQTT client
     const client = mqtt.connect(MQTT_BROKER_URL);
 
     client.on('connect', () => {
         console.log('Connected to MQTT Broker');
-        // Subscribe to the topic pattern
         client.subscribe(TOPIC_PATTERN, (err) => {
             if (err) {
                 console.error('MQTT Subscription error:', err);
@@ -34,16 +38,12 @@ function setupMQTTConnection() {
 
     client.on('message', async (topic, message) => {
         try {
-            // Parse the topic to extract device ID and sensor name
             const topicParts = topic.split('/');
             const deviceId = topicParts[3];
             const sensorName = topicParts[4];
-            
-            // Handle null or non-numeric values
+
             let sensorValue = null;
             const messageStr = message.toString().trim();
-            
-            // Try to convert to number, handle 'null' string
             if (messageStr !== 'null') {
                 const parsedValue = Number(messageStr);
                 if (!isNaN(parsedValue)) {
@@ -51,32 +51,26 @@ function setupMQTTConnection() {
                 }
             }
 
-            // If no valid value, skip processing
             if (sensorValue === null) {
-                console.log(`Skipping null value for device ${deviceId}, sensor ${sensorName}`);
+                // console.log(`Skipping null value for device ${deviceId}, sensor ${sensorName}`);
                 return;
             }
 
-            // Find or create the device
-            let device = await Device.findOne({ id: deviceId });
+            // Verificar si el dispositivo existe (no crearlo aquí)
+            const device = await Device.findOne({ id: deviceId });
             if (!device) {
-                device = new Device({
-                    id: deviceId,
-                    name: `Device ${deviceId}`
-                });
-                await device.save();
+                // console.log(`Dispositivo ${deviceId} no registrado. Datos ignorados.`);
+                return;
             }
 
-            // Find or create sensor data record
-            let sensorData = await SensorData.findOne({ 
-                device: device._id, 
-                sensorName: sensorName 
+            // Buscar o crear datos del sensor
+            let sensorData = await SensorData.findOne({
+                device: device._id,
+                sensorName: sensorName
             });
 
             if (!sensorData) {
-                // Get default thresholds based on sensor type
-                const thresholds = DEFAULT_THRESHOLDS[sensorName] || DEFAULT_THRESHOLDS.default;
-                
+                const thresholds = DEFAULT_THRESHOLDS[sensorName] || { lower: 0, upper: 100 };
                 sensorData = new SensorData({
                     device: device._id,
                     sensorName: sensorName,
@@ -84,27 +78,63 @@ function setupMQTTConnection() {
                     data: []
                 });
             } else if (!sensorData.thresholds) {
-                // Ensure thresholds are always set
-                sensorData.thresholds = DEFAULT_THRESHOLDS[sensorName] || DEFAULT_THRESHOLDS.default;
+                sensorData.thresholds = DEFAULT_THRESHOLDS[sensorName] || { lower: 0, upper: 100 };
             }
 
-            // Add new data point
+            // Agregar nuevo dato
             sensorData.data.push({
                 time: new Date(),
                 value: sensorValue
             });
 
-            // Save sensor data without limiting entries
             await sensorData.save();
 
-            console.log(`Processed data for device ${deviceId}, sensor ${sensorName}: ${sensorValue}`);
+            // Verificar umbrales
+            const { lower, upper } = sensorData.thresholds || {};
+            const exceedsUpper = upper !== undefined && sensorValue > upper;
+            const belowLower = lower !== undefined && sensorValue < lower;
+            const thresholdBreached = exceedsUpper || belowLower;
+
+            if (thresholdBreached) {
+                const translatedSensorName = SENSOR_TRANSLATIONS[sensorName] || sensorName;
+                // console.log(`Notificación para el sensor ${translatedSensorName} con valor ${sensorValue}`);
+
+                const newNotification = new Notification({
+                    name: `Alerta de ${translatedSensorName}`,
+                    date: new Date().toISOString(),
+                    sensor: translatedSensorName,
+                    device: device._id,
+                    value: sensorValue.toString(),
+                    building: device.building || "Desconocido",
+                    space: device.space || "Desconocido",
+                    status: true
+                });
+
+                const savedNotification = await newNotification.save();
+
+                // Enviar notificación por MQTT
+                const alertClient = mqtt.connect(MQTT_BROKER_URL);
+                alertClient.on('connect', () => {
+                    const alertTopic = `/move/alerts/${deviceId}`;
+                    alertClient.publish(alertTopic, savedNotification._id.toString(), () => {
+                        alertClient.end();
+                    });
+                    // console.log(`Notificación enviada al ESP32: ${savedNotification._id}`);
+                });
+            }
+
+            // console.log(`Datos procesados para dispositivo ${deviceId}, sensor ${sensorName}: ${sensorValue}`);
         } catch (error) {
-            console.error('Error processing MQTT message:', error);
+            console.error('Error procesando mensaje MQTT:', error);
         }
     });
 
     client.on('error', (err) => {
         console.error('MQTT Connection error:', err);
+    });
+
+    client.on('close', () => {
+        console.log('MQTT connection closed');
     });
 
     return client;

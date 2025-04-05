@@ -103,3 +103,48 @@ exports.filedNotification = async (req, res) => {
         res.status(500).json({ error: "Error al archivar la notificación" });
     }
 };
+exports.updateNotificationImage = async (req, res) => {
+    // console.log('Recibida petición para actualizar imagen de notificación');
+    try {
+        const { id, image } = req.body;
+        
+        // console.log(`ID de notificación: ${id}`);
+        // console.log(`Tamaño de la imagen: ${image ? (image.length / 1024).toFixed(2) : 0} KB`);
+        
+        if (!id || !image) {
+            console.log('Error: ID o imagen faltantes en la petición');
+            return res.status(400).json({ error: "ID e imagen son requeridos" });
+        }
+        
+        // console.log('Intentando actualizar la notificación "segun"...');
+        
+        const updated = await Notification.findByIdAndUpdate(
+            id,
+            { image },
+            { new: true }
+        );
+        
+        if (!updated) {
+            console.log(`Error: No se encontró ninguna notificación con ID: ${id}`);
+            return res.status(404).json({ error: "Notificación no encontrada" });
+        }
+        
+        // console.log('Imagen actualizada correctamente para la notificación');
+        // console.log(`Detalles: NotificaciónID=${updated._id}, Nombre=${updated.name}`);
+        
+        res.json(updated);
+    } catch (error) {
+        console.error('Error al actualizar la imagen:', error);
+        // Log detallado del error
+        if (error.name === 'CastError') {
+            console.log('Error de tipo: El ID proporcionado no tiene el formato correcto');
+        } else if (error.name === 'ValidationError') {
+            console.log('Error de validación:', error.message);
+        } else {
+            console.log('Tipo de error:', error.name);
+            console.log('Mensaje de error:', error.message);
+        }
+        
+        res.status(500).json({ error: "Error al actualizar la imagen" });
+    }
+};

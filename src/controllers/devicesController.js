@@ -4,7 +4,7 @@ const Space = require('../models/Space');
 
 exports.registerDevice = async (req, res) => {
     try {
-        const { id, ip } = req.body;
+        const { id } = req.body;
 
         if (!id) {
             return res.status(400).json({ message: "ID del dispositivo es requerido" });
@@ -13,10 +13,9 @@ exports.registerDevice = async (req, res) => {
         let device = await Device.findOne({ id });
 
         if (!device) {
-            // Si el dispositivo no existe, lo creamos
             device = new Device({
                 id,
-                name: "Nuevo Dispositivo",
+                name: "Nuevo Dispositivo",  // Nombre fijo como lo querías
                 building: null,
                 space: null,
                 deleted: false
@@ -24,12 +23,10 @@ exports.registerDevice = async (req, res) => {
             await device.save();
             console.log("[INFO] Nuevo dispositivo registrado:", device);
         } else if (device.deleted) {
-            // Si el dispositivo existe pero está marcado como eliminado, lo restauramos
             device.deleted = false;
+            device.name = "Nuevo Dispositivo";  // Resetear el nombre si estaba eliminado
             await device.save();
             console.log("[INFO] Dispositivo restaurado:", device);
-        } else {
-            console.log("[INFO] Dispositivo ya existente y no eliminado:", device);
         }
 
         return res.status(200).json({ message: "Dispositivo registrado correctamente", device });
