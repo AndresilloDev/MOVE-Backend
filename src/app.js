@@ -9,7 +9,9 @@ const jwt = require("jsonwebtoken");
 const setupMQTTConnection = require('./config/mqttConfig');
 
 const app = express();
-app.use(express.json());
+
+// Configura express.json() para permitir cuerpos más grandes
+app.use(express.json({ limit: '200mb' })); // Aquí ajustamos el límite de tamaño
 app.use(cookieParser());
 app.disable('X-Powered-By');
 
@@ -68,7 +70,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 const routes = require('./routes');
-const { invalid } = require('moment');
 app.use('/api', routes);
 
 // Export server instead of app to include Socket.IO
