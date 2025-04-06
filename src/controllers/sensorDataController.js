@@ -80,19 +80,25 @@ exports.getAllSensorDataInRange = async (req, res) => {
 // Actualizar los thresholds de un sensor
 exports.updateSensorThresholds = async (req, res) => {
     try {
-        const { sensorId } = req.params;
-        const { upperThreshold, lowerThreshold } = req.body;
+        const { deviceId, sensorId } = req.params;
+        const { thresholds } = req.body;
         
-        const sensor = await SensorData.findById(sensorId);
-        
+        if (!thresholds || !thresholds.lower || !thresholds.upper) {
+            return res.status(400).json({ error: 'Se requieren ambos umbrales (lower y upper)' });
+        }
+
+        const sensor = await SensorData.findOne({ 
+            device: deviceId,
+            _id: sensorId 
+        });
+
         if (!sensor) {
             return res.status(404).json({ error: 'Sensor no encontrado' });
         }
         
-        // Actualizar thresholds
         sensor.thresholds = {
-            upper: upperThreshold !== undefined ? upperThreshold : sensor.thresholds?.upper,
-            lower: lowerThreshold !== undefined ? lowerThreshold : sensor.thresholds?.lower
+            upper: thresholds.upper,
+            lower: thresholds.lower 
         };
         
         await sensor.save();

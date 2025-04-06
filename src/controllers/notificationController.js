@@ -8,9 +8,9 @@ exports.getUnfiledNotifications = async (req, res) => {
         const { deviceId, sensor } = req.query;
 
         let device = {};
-        if (deviceId) device = await Device.findById({device: deviceId});
+        if (deviceId) device = await Device.findById({_id: deviceId});
 
-        if (deviceId && sensorType) {
+        if (device && sensor) {
             const notifications = await Notification.find({
                 status: true,
                 device: device._id,
@@ -32,7 +32,6 @@ exports.getNotification = async (req, res) => {
         if (!notification) {
             return res.status(404).json({ error: "Notificación no encontrada" });
         }
-        console.log(notification);
         res.json(notification);
     } catch (error) {
         res.status(500).json({ error: "Error al buscar la notificación" });
