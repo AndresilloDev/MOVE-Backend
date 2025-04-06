@@ -114,3 +114,33 @@ exports.updateDevice = async (req, res) => {
         return res.status(500).json({ message: 'Error in server' });
     }
 };
+
+exports.updateSensorThresholds = async (req, res) => {
+    try {
+        const { device, sensorName, thresholds } = req.body;
+
+        const targetDevice = await Device.findById(device);
+
+        if (!targetDevice) {
+            return res.status(404).json({ message: "Device not found" });
+        }
+
+        const sensor = targetDevice.sensors.find(s => s.name === sensorName);
+
+        if (!sensor) {
+            return res.status(404).json({ message: "Sensor not found in device" });
+        }
+
+        sensor.thresholds = {
+            lower: thresholds.lower,
+            upper: thresholds.upper
+        };
+
+        await targetDevice.save();
+
+        return res.status(200).json({ message: "Sensor thresholds updated", device: targetDevice });
+    } catch (error) {
+        console.error("[ERROR] Updating sensor thresholds:", error);
+        return res.status(500).json({ message: "Server error" });
+    }
+};
