@@ -61,12 +61,24 @@ app.use((req, res, next) => {
   next()
 });
 
+const allowedOrigins = [
+  'https://staging.d15m6l01fytnha.amplifyapp.com',
+  'http://localhost:5173'
+];
+
 const corsOptions = {
-  origin: true,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 };
+
 app.use(cors(corsOptions));
 
 const routes = require('./routes');
