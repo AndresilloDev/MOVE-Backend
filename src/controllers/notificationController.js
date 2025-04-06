@@ -7,7 +7,7 @@ exports.getUnfiledNotifications = async (req, res) => {
     try {
         const { deviceId, sensorType } = req.query;
 
-        const device = {};
+        let device = {};
         if (deviceId) device = Device.findById(deviceId);
 
         if (deviceId && sensorType) {
