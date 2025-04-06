@@ -5,6 +5,19 @@ const SensorData = require("../models/SensorData");
 // Obtener todas las notificaciones NO archivadas
 exports.getUnfiledNotifications = async (req, res) => {
     try {
+        const { deviceId, sensorType } = req.query;
+
+        const device = {};
+        if (deviceId) device = Device.findById(deviceId);
+
+        if (deviceId && sensorType) {
+            const notifications = await Notification.find({
+                status: true,
+                device: device.name,
+                sensor: sensorType
+            });
+            return res.json(notifications);
+        }
         const notifications = await Notification.find({ status: true });
         res.json(notifications);
     } catch (error) {
