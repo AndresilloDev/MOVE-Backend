@@ -83,7 +83,7 @@ exports.updateSensorThresholds = async (req, res) => {
         const { deviceId, sensorId } = req.params;
         const { thresholds } = req.body;
         
-        if (!thresholds || !thresholds.lower || !thresholds.upper) {
+        if (!thresholds || !thresholds.upper) {
             return res.status(400).json({ error: 'Se requieren ambos umbrales (lower y upper)' });
         }
 
@@ -91,6 +91,8 @@ exports.updateSensorThresholds = async (req, res) => {
             device: deviceId,
             _id: sensorId 
         });
+
+        console.log(sensor)
 
         if (!sensor) {
             return res.status(404).json({ error: 'Sensor no encontrado' });
@@ -100,6 +102,8 @@ exports.updateSensorThresholds = async (req, res) => {
             upper: thresholds.upper,
             lower: thresholds.lower 
         };
+
+        console.log(sensor)
         
         await sensor.save();
         
